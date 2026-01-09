@@ -20,6 +20,16 @@ Winlator is an Android application that lets you to run Windows (x86_64) applica
 
 ----
 
+# Faydalı İpuçları
+​Performans sorunları yaşıyorsanız, "Container Settings" (Konteyner Ayarları) -> "Advanced" (Gelişmiş) sekmesinden Box64 önayarını Performance olarak değiştirmeyi deneyin.
+​.NET Framework kullanan uygulamalar için, Başlat Menüsü -> "System Tools" (Sistem Araçları) -> "Installers" (Yükleyiciler) kısmında bulunan Wine Monoyu kurmayı deneyin.
+​Bazı eski oyunlar açılmıyorsa, "Container Settings" -> "Environment Variables" (Ortam Değişkenleri) kısmına MESA_EXTENSION_MAX_YEAR=2003 değişkenini eklemeyi deneyin.
+​Oyunları Winlator ana ekranındaki kısayolu kullanarak çalıştırmayı deneyin; oradan her oyun için özel ayarlar tanımlayabilirsiniz.
+​Düşük çözünürlüklü oyunları doğru görüntülemek için kısayol ayarlarından Force Fullscreen (Tam Ekrana Zorla) seçeneğini etkinleştirmeyi deneyin.
+​Unity Engine kullanan oyunlarda kararlılığı artırmak için Box64 önayarını Stability olarak değiştirmeyi veya kısayol ayarlarına -force-gfx-direct yürütme argümanını eklemeyi deneyin.
+
+# ​Bilgilendirme
+​Bu proje sürüm 1.0'dan beri sürekli geliştirilmektedir. Mevcut uygulama kaynak kodu sürüm 7.1'e kadardır; Winlator'ın resmi sürümlerinden önce resmi olmayan yayınların çıkmasını önlemek amacıyla bu depoyu sık sık güncellemiyorum.
 # Useful Tips
 
 - If you are experiencing performance issues, try changing the Box64 preset to `Performance` in Container Settings -> Advanced Tab.
