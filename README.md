@@ -4,12 +4,12 @@
 
 # Winlator
 
-Winlator is an Android application that lets you to run Windows (x86_64) applications with Wine and Box86/Box64.
+Winlator, Windows (x86_64) uygulamalarını Wine ve Box86/Box64 ile çalıştırmanıza olanak tanıyan bir Android uygulamasıdır.
 
-# Installation
+# Kurulum
 
-1. Download and install the APK (Winlator_10.1.apk) from [GitHub Releases](https://github.com/brunodev85/winlator/releases)
-2. Launch the app and wait for the installation process to finish
+1. İndirin ve Apk'yı kurun (Winlator_10.1.apk) from [GitHub Releases](https://github.com/brunodev85/winlator/releases)
+2. Uygulamayı başlatın ve kurulum sürecinin bitmesini bekleyin. 
 
 ----
 
@@ -22,26 +22,19 @@ Winlator is an Android application that lets you to run Windows (x86_64) applica
 
 # Faydalı İpuçları
 ​Performans sorunları yaşıyorsanız, "Container Settings" (Konteyner Ayarları) -> "Advanced" (Gelişmiş) sekmesinden Box64 önayarını Performance olarak değiştirmeyi deneyin.
+
 ​.NET Framework kullanan uygulamalar için, Başlat Menüsü -> "System Tools" (Sistem Araçları) -> "Installers" (Yükleyiciler) kısmında bulunan Wine Monoyu kurmayı deneyin.
+
 ​Bazı eski oyunlar açılmıyorsa, "Container Settings" -> "Environment Variables" (Ortam Değişkenleri) kısmına MESA_EXTENSION_MAX_YEAR=2003 değişkenini eklemeyi deneyin.
+
 ​Oyunları Winlator ana ekranındaki kısayolu kullanarak çalıştırmayı deneyin; oradan her oyun için özel ayarlar tanımlayabilirsiniz.
+
 ​Düşük çözünürlüklü oyunları doğru görüntülemek için kısayol ayarlarından Force Fullscreen (Tam Ekrana Zorla) seçeneğini etkinleştirmeyi deneyin.
 ​Unity Engine kullanan oyunlarda kararlılığı artırmak için Box64 önayarını Stability olarak değiştirmeyi veya kısayol ayarlarına -force-gfx-direct yürütme argümanını eklemeyi deneyin.
 
 # ​Bilgilendirme
 ​Bu proje sürüm 1.0'dan beri sürekli geliştirilmektedir. Mevcut uygulama kaynak kodu sürüm 7.1'e kadardır; Winlator'ın resmi sürümlerinden önce resmi olmayan yayınların çıkmasını önlemek amacıyla bu depoyu sık sık güncellemiyorum.
-# Useful Tips
 
-- If you are experiencing performance issues, try changing the Box64 preset to `Performance` in Container Settings -> Advanced Tab.
-- For applications that use .NET Framework, try installing `Wine Mono` found in Start Menu -> System Tools -> Installers.
-- If some older games don't open, try adding the environment variable `MESA_EXTENSION_MAX_YEAR=2003` in Container Settings -> Environment Variables.
-- Try running the games using the shortcut on the Winlator home screen, there you can define individual settings for each game.
-- To display low resolution games correctly, try to enabling the `Force Fullscreen` option in the shortcut settings.
-- To improve stability in games that uses Unity Engine, try changing the Box64 preset to `Stability` or in the shortcut settings add the exec argument `-force-gfx-direct`.
-
-# Information
-
-This project has been in constant development since version 1.0, the current app source code is up to version 7.1, I do not update this repository frequently precisely to avoid unofficial releases before the official releases of Winlator.
 
 # Credits and Third-party apps
 - GLIBC Patches by [Termux Pacman](https://github.com/termux-pacman/glibc-packages)
