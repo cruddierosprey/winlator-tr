@@ -9,10 +9,14 @@ on:
 permissions:
   contents: read
 
+env:
+  ROOTFS_SHA256: 00a283c7d3e9ed2399b8d73175f92a3932b65e86925f7a5bd0fe0d4736e81e8a
+  WINLATOR_71_APK_URL: https://github.com/brunodev85/winlator/releases/download/v7.1.0/Winlator_7.1.apk
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout source
@@ -20,6 +24,25 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 1
+
+      - name: Hydrate Winlator 7.1 rootfs asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOTFS="app/src/main/assets/imagefs.txz"
+
+          if grep -q '^version https://git-lfs.github.com/spec/v1' "$ROOTFS"; then
+            echo "Rootfs is an LFS pointer; hydrating from the matching official Winlator 7.1 APK."
+            curl --fail --location --retry 4 --retry-all-errors \
+              --output /tmp/Winlator_7.1.apk \
+              "$WINLATOR_71_APK_URL"
+            unzip -p /tmp/Winlator_7.1.apk assets/imagefs.txz > "$ROOTFS"
+          fi
+
+          ACTUAL_SIZE=$(stat -c%s "$ROOTFS")
+          echo "Rootfs size: $ACTUAL_SIZE bytes"
+          test "$ACTUAL_SIZE" -gt 150000000
+          echo "$ROOTFS_SHA256  $ROOTFS" | sha256sum --check --strict
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -47,6 +70,23 @@ jobs:
 
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Verify packaged runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=$(find app/build/outputs/apk/debug -name '*.apk' -type f | head -n 1)
+          test -n "$APK"
+          unzip -t "$APK" >/dev/null
+          PACKAGED_SIZE=$(unzip -l "$APK" assets/imagefs.txz | awk '/assets\/imagefs.txz$/ {print $1}')
+          echo "Packaged rootfs size: $PACKAGED_SIZE bytes"
+          test "$PACKAGED_SIZE" -gt 150000000
+          unzip -p "$APK" assets/imagefs.txz | sha256sum --check --strict <(printf '%s  -\n' "$ROOTFS_SHA256")
+          unzip -l "$APK" | grep -q 'lib/arm64-v8a/'
+          if unzip -l "$APK" | grep -q 'lib/armeabi-v7a/'; then
+            echo "Unexpected armeabi-v7a libraries found" >&2
+            exit 1
+          fi
 
       - name: Upload debug APK
         if: success()
