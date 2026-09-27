@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="pocket_bg">#0B0F14</color>
+    <color name="pocket_surface">#141B24</color>
+    <color name="pocket_surface_alt">#1B2531</color>
+    <color name="pocket_border">#2B3948</color>
+    <color name="pocket_text">#F3F7FA</color>
+    <color name="pocket_text_muted">#9BAAB8</color>
+    <color name="pocket_accent">#4CC2FF</color>
+    <color name="pocket_accent_dark">#1378A8</color>
+    <color name="pocket_success">#58D68D</color>
+    <color name="pocket_disabled">#55606B</color>
+</resources>
