@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pocket_app_name">Pocket Runtime</string>
+    <string name="pocket_home">Home</string>
+    <string name="pocket_hero_title">PC apps, without the PC.</string>
+    <string name="pocket_hero_subtitle">Windows and Linux applications from one lightweight Android workspace.</string>
+    <string name="pocket_windows_title">Windows Apps</string>
+    <string name="pocket_windows_subtitle">Open the existing Wine / Box64 runtime.</string>
+    <string name="pocket_linux_title">Linux Apps</string>
+    <string name="pocket_linux_subtitle">Linux runner is staged for the next phase.</string>
+    <string name="pocket_linux_locked">Linux Runner will be enabled after Phase 1 is approved.</string>
+    <string name="pocket_advanced">Runtime Settings</string>
+    <string name="pocket_device">This device</string>
+    <string name="pocket_runtime_ready">Windows runtime core retained</string>
+    <string name="pocket_phase_label">PHASE 1 · SHELL</string>
+    <string name="pocket_open">OPEN</string>
+    <string name="pocket_coming_next">NEXT PHASE</string>
+</resources>
