@@ -1,6 +1,7 @@
 package com.winlator.winhandler;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.midi.MidiDeviceInfo;
 import android.media.midi.MidiManager;
 import android.media.midi.MidiOutputPort;
@@ -8,6 +9,8 @@ import android.media.midi.MidiReceiver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.preference.PreferenceManager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -45,7 +48,10 @@ public class MIDIHandler {
     private final MidiReceiver outputPortReceiver = new MidiReceiver() {
         @Override
         public void onSend(byte[] data, int offset, int count, long timestamp) throws IOException {
-            for (int i = offset; i < count; i += 3) sendShortMsg(data[i+0], (byte)0, data[i+1], data[i+2]);
+            int end = Math.min(data.length, offset + count);
+            for (int i = offset; i + 2 < end; i += 3) {
+                sendShortMsg(data[i], (byte)0, data[i + 1], data[i + 2]);
+            }
         }
     };
 
@@ -58,21 +64,25 @@ public class MIDIHandler {
     }
 
     public void outputPortConnect() {
-        String selectedDevice = winHandler.activity.getPreferences().getString("midi_input_device", "auto");
-        if (selectedDevice.equals("none")) return;
+        Context context = winHandler.getActivity();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String selectedDevice = preferences.getString("midi_input_device", "auto");
+        if ("none".equals(selectedDevice)) return;
 
-        MidiManager mm = (MidiManager)winHandler.activity.getSystemService(Context.MIDI_SERVICE);
+        MidiManager mm = (MidiManager)context.getSystemService(Context.MIDI_SERVICE);
+        if (mm == null) return;
         MidiDeviceInfo[] infos = mm.getDevices();
 
         for (MidiDeviceInfo info : infos) {
             if (info.getOutputPortCount() > 0) {
                 Bundle properties = info.getProperties();
-                if (selectedDevice.equals("auto") || selectedDevice.equalsIgnoreCase(properties.getString(MidiDeviceInfo.PROPERTY_NAME))) {
+                String deviceName = properties.getString(MidiDeviceInfo.PROPERTY_NAME);
+                if ("auto".equals(selectedDevice) || (deviceName != null && selectedDevice.equalsIgnoreCase(deviceName))) {
                     mm.openDevice(info, (device) -> {
                         synchronized (outputPortReceiver) {
                             if (device == null || outputPort != null) return;
                             outputPort = device.openOutputPort(0);
-                            outputPort.connect(outputPortReceiver);
+                            if (outputPort != null) outputPort.connect(outputPortReceiver);
                         }
                     }, new Handler(Looper.getMainLooper()));
                     break;
@@ -85,6 +95,10 @@ public class MIDIHandler {
         synchronized (outputPortReceiver) {
             if (outputPort != null) {
                 outputPort.disconnect(outputPortReceiver);
+                try {
+                    outputPort.close();
+                }
+                catch (IOException ignored) {}
                 outputPort = null;
             }
         }
@@ -105,14 +119,15 @@ public class MIDIHandler {
     }
 
     public boolean sendShortMsg(byte command, byte channel, byte param1, byte param2) {
-        if (!winHandler.initReceived || midiInClients.isEmpty()) return false;
+        if (!winHandler.isInitReceived() || midiInClients.isEmpty()) return false;
         final ByteBuffer sendData = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        sendData.putInt(0, (byte)(command | channel));
+        sendData.put(0, (byte)(command | channel));
         sendData.put(1, param1);
         sendData.put(2, param2);
+        final byte[] packet = sendData.array();
 
         for (final int port : midiInClients) {
-            winHandler.addAction(() -> winHandler.sendPacket(port, sendData.array()));
+            winHandler.enqueueAction(() -> winHandler.sendRawPacket(port, packet));
         }
 
         return true;
@@ -135,15 +150,16 @@ public class MIDIHandler {
                 while (opened) {
                     try {
                         socket.receive(receivePacket);
-
                         receiveData.rewind();
-                        boolean isShortData = receiveData.get() == 1;
-                        processData(receiveData.get(), receiveData.get(), receiveData.get());
+                        if (receivePacket.getLength() >= 4) {
+                            receiveData.get();
+                            processData(receiveData.get(), receiveData.get(), receiveData.get());
+                        }
                     }
-                    catch (SocketTimeoutException e) {}
+                    catch (SocketTimeoutException ignored) {}
                 }
             }
-            catch (IOException e) {}
+            catch (IOException ignored) {}
         });
     }
 
@@ -152,17 +168,20 @@ public class MIDIHandler {
         if (!opened) return;
         opened = false;
 
-        if (executorService != null) {
-            try {
-                executorService.awaitTermination(2, TimeUnit.SECONDS);
-            }
-            catch (InterruptedException e) {}
-            executorService = null;
-        }
-
         if (socket != null) {
             socket.close();
             socket = null;
+        }
+
+        if (executorService != null) {
+            executorService.shutdownNow();
+            try {
+                executorService.awaitTermination(2, TimeUnit.SECONDS);
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            executorService = null;
         }
     }
 
