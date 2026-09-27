@@ -49,7 +49,8 @@ public class WinHandler {
     private boolean sendPacket(int port) {
         try {
             int size = sendData.position();
-            if (size == 0) return false;
+            if (size == 0 || socket == null || localhost == null) return false;
+            sendPacket.setData(sendData.array(), 0, size);
             sendPacket.setAddress(localhost);
             sendPacket.setPort(port);
             socket.send(sendPacket);
@@ -58,6 +59,29 @@ public class WinHandler {
         catch (IOException e) {
             return false;
         }
+    }
+
+    boolean sendRawPacket(int port, byte[] data) {
+        if (data == null || data.length == 0 || socket == null || localhost == null) return false;
+        try {
+            socket.send(new DatagramPacket(data, data.length, localhost, port));
+            return true;
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
+
+    XServerDisplayActivity getActivity() {
+        return activity;
+    }
+
+    boolean isInitReceived() {
+        return initReceived;
+    }
+
+    void enqueueAction(Runnable action) {
+        addAction(action);
     }
 
     public void exec(String command) {
@@ -141,7 +165,7 @@ public class WinHandler {
             sendData.putShort((short)dx);
             sendData.putShort((short)dy);
             sendData.putShort((short)wheelDelta);
-            sendData.put((byte)((flags & MouseEventFlags.MOVE) != 0 ? 1 : 0)); // cursor pos feedback
+            sendData.put((byte)((flags & MouseEventFlags.MOVE) != 0 ? 1 : 0));
             sendPacket(CLIENT_PORT);
         });
     }
